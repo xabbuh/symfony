@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * All URL paths starting with /_fragment are handled as
  * content fragments by this listener.
  *
- * If throws an AccessDeniedHttpException exception if the request
+ * It throws an AccessDeniedHttpException exception if the request
  * is not signed or if it is not an internal sub-request.
  *
  * @author Fabien Potencier <fabien@symfony.com>
