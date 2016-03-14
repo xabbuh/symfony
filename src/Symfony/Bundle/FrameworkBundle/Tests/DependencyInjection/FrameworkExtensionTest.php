@@ -579,6 +579,7 @@ abstract class FrameworkExtensionTest extends TestCase
         $this->assertCachePoolServiceDefinitionIsCreated($container, 'bar', 'doctrine', array('index_0' => new Reference('app.doctrine_cache_provider'), 'index_1' => 5));
         $this->assertCachePoolServiceDefinitionIsCreated($container, 'baz', 'filesystem', array('index_0' => 'app/cache/psr', 'index_1' => 7));
         $this->assertCachePoolServiceDefinitionIsCreated($container, 'foobar', 'psr6', array('index_0' => new Reference('app.cache_pool'), 'index_1' => 10));
+        $this->assertCachePoolServiceDefinitionIsCreated($container, 'def', 'filesystem', array('index_1' => 11));
     }
 
     protected function createContainer(array $data = array())
@@ -658,10 +659,10 @@ abstract class FrameworkExtensionTest extends TestCase
 
         $poolDefinition = $container->getDefinition($id);
 
-        $this->assertInstanceOf(DefinitionDecorator::class, $poolDefinition, sprintf('Cache pool "%s" is based on an abstract cache adapter.', $name));
+        $this->assertInstanceOf(DefinitionDecorator::class, $poolDefinition, sprintf('Cache pool "%s" is based on an abstract cache pool.', $name));
         $this->assertEquals($arguments, $poolDefinition->getArguments());
 
-        $adapterDefinition = $container->getDefinition($poolDefinition->getParent());
+        $adapterDefinition = $container->findDefinition($poolDefinition->getParent());
 
         switch ($type) {
             case 'apcu':
@@ -675,13 +676,14 @@ abstract class FrameworkExtensionTest extends TestCase
                 break;
         }
 
-        $this->assertTrue($adapterDefinition->hasTag('cache.adapter'), sprintf('Service definition "%s" is tagged with the "cache.adapter" tag.', $id));
+        $this->assertTrue($adapterDefinition->hasTag('cache.pool'), sprintf('Service definition "%s" is tagged with the "cache.pool" tag.', $id));
+        $this->assertTrue($adapterDefinition->isAbstract(), sprintf('Service definition "%s" is abstract.', $id));
 
-        $tag = $adapterDefinition->getTag('cache.adapter');
+        $tag = $adapterDefinition->getTag('cache.pool');
 
         if (null !== $namespaceArgumentIndex) {
-            $this->assertTrue(isset($tag[0]['namespace-arg-index']), 'The namespace argument index is given by the "namespace-arg-index" attribute of the "cache.adapter" tag.');
-            $this->assertSame($namespaceArgumentIndex, $tag[0]['namespace-arg-index'], 'The namespace argument index is given by the "namespace-arg-index" attribute of the "cache.adapter" tag.');
+            $this->assertTrue(isset($tag[0]['namespace-arg-index']), 'The namespace argument index is given by the "namespace-arg-index" attribute of the "cache.pool" tag.');
+            $this->assertSame($namespaceArgumentIndex, $tag[0]['namespace-arg-index'], 'The namespace argument index is given by the "namespace-arg-index" attribute of the "cache.pool" tag.');
         }
     }
 }

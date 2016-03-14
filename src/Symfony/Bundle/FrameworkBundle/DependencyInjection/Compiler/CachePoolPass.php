@@ -26,34 +26,18 @@ class CachePoolPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         foreach ($container->findTaggedServiceIds('cache.pool') as $id => $tags) {
-            $pool = $container->getDefinition($id);
+            $adapter = $pool = $container->getDefinition($id);
 
-            if (!$pool instanceof DefinitionDecorator) {
-                throw new \InvalidArgumentException(sprintf('Services tagged with "cache.pool" must have a parent service but "%s" has none.', $id));
+            while (!isset($tags[0]['namespace_arg_index']) && $adapter instanceof DefinitionDecorator) {
+                $adapter = $container->findDefinition($adapter->getParent());
+                $tags = $adapter->getTag('cache.pool');
             }
-
-            $adapter = $pool;
-
-            do {
-                $adapterId = $adapter->getParent();
-                $adapter = $container->getDefinition($adapterId);
-            } while ($adapter instanceof DefinitionDecorator && !$adapter->hasTag('cache.adapter'));
-
-            if (!$adapter->hasTag('cache.adapter')) {
-                throw new \InvalidArgumentException(sprintf('Services tagged with "cache.pool" must have a parent service tagged with "cache.adapter" but "%s" has none.', $id));
-            }
-
-            $tags = $adapter->getTag('cache.adapter');
 
             if (!isset($tags[0]['namespace_arg_index'])) {
-                throw new \InvalidArgumentException(sprintf('Invalid "cache.adapter" tag for service "%s": attribute "namespace_arg_index" is missing.', $adapterId));
+                throw new \InvalidArgumentException(sprintf('Invalid "cache.pool" tag for service "%s": attribute "namespace_arg_index" is missing.', $id));
             }
 
-            if (!$adapter->isAbstract()) {
-                throw new \InvalidArgumentException(sprintf('Services tagged as "cache.adapter" must be abstract: "%s" is not.', $adapterId));
-            }
-
-            if (0 <= $namespaceArgIndex = $tags[0]['namespace_arg_index']) {
+            if (!$pool->isAbstract() && 0 <= $namespaceArgIndex = $tags[0]['namespace_arg_index']) {
                 $pool->replaceArgument($namespaceArgIndex, $this->getNamespace($id));
             }
         }

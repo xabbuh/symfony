@@ -10,7 +10,7 @@ $container->loadFromExtension('framework', array(
             'bar' => array(
                 'type' => 'doctrine',
                 'default_lifetime' => 5,
-                'cache_provider_service' => 'app.doctrine_cache_provider',
+                'provider_service' => 'app.doctrine_cache_provider',
             ),
             'baz' => array(
                 'type' => 'filesystem',
@@ -20,7 +20,11 @@ $container->loadFromExtension('framework', array(
             'foobar' => array(
                 'type' => 'psr6',
                 'default_lifetime' => 10,
-                'cache_provider_service' => 'app.cache_pool',
+                'provider_service' => 'app.cache_pool',
+            ),
+            'def' => array(
+                'type' => 'default',
+                'default_lifetime' => 11,
             ),
         ),
     ),

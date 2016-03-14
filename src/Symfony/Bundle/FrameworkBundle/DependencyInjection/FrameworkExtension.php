@@ -1024,16 +1024,24 @@ class FrameworkExtension extends Extension
     private function registerCacheConfiguration(array $config, ContainerBuilder $container, XmlFileLoader $loader)
     {
         if (!empty($config['pools'])) {
-            $loader->load('cache_adapters.xml');
+            $loader->load('cache_pools.xml');
         }
 
         foreach ($config['pools'] as $name => $poolConfig) {
-            $poolDefinition = new DefinitionDecorator('cache.adapter.'.$poolConfig['type']);
-            $poolDefinition->replaceArgument(1, $poolConfig['default_lifetime']);
+            $type = $poolConfig['type'];
+            if (!isset($config['pools'][$type]) && !$container->has('cache.pool.'.$type)) {
+                throw new \UnexpectedValueException(sprintf('Cache pool "%s" is of undefined type "%s".', $name, $type));
+            }
+            $poolDefinition = new DefinitionDecorator('cache.pool.'.$type);
+            $poolDefinition->setPublic($poolConfig['public']);
 
-            if ('doctrine' === $poolConfig['type'] || 'psr6' === $poolConfig['type']) {
-                $poolDefinition->replaceArgument(0, new Reference($poolConfig['cache_provider_service']));
-            } elseif ('filesystem' === $poolConfig['type'] && isset($poolConfig['directory'][0])) {
+            if (isset($poolConfig['default_lifetime'])) {
+                $poolDefinition->replaceArgument(1, $poolConfig['default_lifetime']);
+            }
+
+            if ('doctrine' === $type || 'psr6' === $type) {
+                $poolDefinition->replaceArgument(0, new Reference($poolConfig['provider_service']));
+            } elseif ('filesystem' === $type && isset($poolConfig['directory'][0])) {
                 $poolDefinition->replaceArgument(0, $poolConfig['directory']);
             }
 
