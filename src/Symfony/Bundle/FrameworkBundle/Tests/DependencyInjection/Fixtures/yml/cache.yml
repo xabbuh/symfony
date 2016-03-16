@@ -7,7 +7,7 @@ framework:
             bar:
                 type: doctrine
                 default_lifetime: 5
-                cache_provider_service: app.doctrine_cache_provider
+                provider_service: app.doctrine_cache_provider
             baz:
                 type: filesystem
                 default_lifetime: 7
@@ -15,4 +15,7 @@ framework:
             foobar:
                 type: psr6
                 default_lifetime: 10
-                cache_provider_service: app.cache_pool
+                provider_service: app.cache_pool
+            def:
+                type: default
+                default_lifetime: 11

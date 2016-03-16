@@ -30,9 +30,10 @@ class CachePoolPassTest extends \PHPUnit_Framework_TestCase
         $container = new ContainerBuilder();
         $adapter = new Definition();
         $adapter->setAbstract(true);
-        $adapter->addTag('cache.adapter', array('namespace_arg_index' => 0));
+        $adapter->addTag('cache.pool', array('namespace_arg_index' => 0));
         $container->setDefinition('app.cache_adapter', $adapter);
-        $cachePool = new DefinitionDecorator('app.cache_adapter');
+        $container->setAlias('app.cache_adapter_alias', 'app.cache_adapter');
+        $cachePool = new DefinitionDecorator('app.cache_adapter_alias');
         $cachePool->addArgument(null);
         $cachePool->addTag('cache.pool');
         $container->setDefinition('app.cache_pool', $cachePool);
@@ -44,60 +45,14 @@ class CachePoolPassTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Services tagged with "cache.pool" must have a parent service but "app.cache_pool" has none.
-     */
-    public function testThrowsExceptionWhenCachePoolHasNoParentDefinition()
-    {
-        $container = new ContainerBuilder();
-        $cachePool = new Definition();
-        $cachePool->addTag('cache.pool');
-        $container->setDefinition('app.cache_pool', $cachePool);
-
-        $this->cachePoolPass->process($container);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Services tagged with "cache.pool" must have a parent service tagged with "cache.adapter" but "app.cache_pool" has none.
-     */
-    public function testThrowsExceptionWhenCachePoolIsNotBasedOnAdapter()
-    {
-        $container = new ContainerBuilder();
-        $container->register('app.cache_adapter');
-        $cachePool = new DefinitionDecorator('app.cache_adapter');
-        $cachePool->addTag('cache.pool');
-        $container->setDefinition('app.cache_pool', $cachePool);
-
-        $this->cachePoolPass->process($container);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid "cache.adapter" tag for service "app.cache_adapter": attribute "namespace_arg_index" is missing.
+     * @expectedExceptionMessage Invalid "cache.pool" tag for service "app.cache_adapter": attribute "namespace_arg_index" is missing.
      */
     public function testThrowsExceptionWhenCacheAdapterDefinesNoNamespaceArgument()
     {
         $container = new ContainerBuilder();
         $adapter = new Definition();
         $adapter->setAbstract(true);
-        $adapter->addTag('cache.adapter');
-        $container->setDefinition('app.cache_adapter', $adapter);
-        $cachePool = new DefinitionDecorator('app.cache_adapter');
-        $cachePool->addTag('cache.pool');
-        $container->setDefinition('app.cache_pool', $cachePool);
-
-        $this->cachePoolPass->process($container);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Services tagged as "cache.adapter" must be abstract: "app.cache_adapter" is not.
-     */
-    public function testThrowsExceptionWhenCacheAdapterIsNotAbstract()
-    {
-        $container = new ContainerBuilder();
-        $adapter = new Definition();
-        $adapter->addTag('cache.adapter', array('namespace_arg_index' => 0));
+        $adapter->addTag('cache.pool');
         $container->setDefinition('app.cache_adapter', $adapter);
         $cachePool = new DefinitionDecorator('app.cache_adapter');
         $cachePool->addTag('cache.pool');
