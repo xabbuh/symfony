@@ -168,9 +168,8 @@ class Parser
                 $context = 'mapping';
 
                 // force correct settings
-                Inline::parse(null, $flags, $this->refs);
+                Inline::initialize($flags, $this->getRealCurrentLineNb());
                 try {
-                    Inline::$parsedLineNumber = $this->getRealCurrentLineNb();
                     $i = 0;
                     $evaluateKey = !(Yaml::PARSE_KEYS_AS_STRINGS & $flags);
 
@@ -930,7 +929,7 @@ class Parser
      *
      * @internal
      */
-    public static function preg_match($pattern, $subject, &$matches = null, $flags = 0, $offset = 0)
+    public static function preg_match(string $pattern, string $subject, array &$matches = null, int $flags = 0, int $offset = 0): int
     {
         if (false === $ret = preg_match($pattern, $subject, $matches, $flags, $offset)) {
             switch (preg_last_error()) {
