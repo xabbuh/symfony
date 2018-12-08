@@ -300,6 +300,15 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
      */
     abstract protected function setAttributeValue($object, $attribute, $value, $format = null, array $context = array());
 
+    protected function denormalizeParameter(\ReflectionClass $class, \ReflectionParameter $parameter, $parameterName, $parameterData, array $context, string $format = null)
+    {
+        if (null === $types = $this->getTypes($class->getName(), $parameterName)) {
+            return parent::denormalizeParameter($class, $parameter, $parameterName, $parameterData, $context, $format);
+        }
+
+        return $this->validateAndDenormalize($class->getName(), $parameterName, $parameterData, $format, $context);
+    }
+
     /**
      * Validates the submitted data and denormalizes it.
      *
