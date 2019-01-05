@@ -711,4 +711,55 @@ class PropertyAccessorTest extends TestCase
         self::assertEquals(array('test@email.com'), $object->getEmails());
         self::assertNull($object->getEmail());
     }
+
+    public function testBug()
+    {
+        $server = new Server();
+        $user = new User();
+        $this->propertyAccessor->setValue($server, 'owners', $user);
+    }
+}
+
+class Server
+{
+    /**
+     * @var User[]
+     */
+    private $owners;
+
+    public function addOwner(User $owners): self
+    {
+        $this->owners[] = $owners;
+        $owners->addServer($this);
+
+        return $this;
+    }
+
+    public function removeOwner(User $owners): void
+    {
+        if (false !== $key = array_search($owners, $this->owners, true)) {
+            unset($this->owners[$key]);
+        }
+    }
+
+    /**
+     * @return ArrayCollection|User[]
+     */
+    public function getOwners(): array
+    {
+        return $this->owners;
+    }
+}
+
+class User
+{
+    public $servers;
+
+    public function addServer(Server $server)
+    {
+    }
+
+    public function removeElement()
+    {
+    }
 }
