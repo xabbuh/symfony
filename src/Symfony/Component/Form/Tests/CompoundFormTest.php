@@ -19,6 +19,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\Form\SubmitButtonBuilder;
 use Symfony\Component\Form\Tests\Fixtures\FixedDataTransformer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -56,10 +57,8 @@ class CompoundFormTest extends AbstractFormTest
 
     public function testDisabledFormsValidEvenIfChildrenInvalid()
     {
-        $form = $this->getBuilder('person')
+        $form = $this->getCompoundFormBuilder('person')
             ->setDisabled(true)
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
             ->add($this->getBuilder('name'))
             ->getForm();
 
@@ -226,10 +225,7 @@ class CompoundFormTest extends AbstractFormTest
 
     public function testAddUsingNameButNoType()
     {
-        $this->form = $this->getBuilder('name', null, '\stdClass')
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
-            ->getForm();
+        $this->form = $this->createCompoundForm('name', '\stdClass');
 
         $child = $this->getBuilder('foo')->getForm();
 
@@ -247,10 +243,7 @@ class CompoundFormTest extends AbstractFormTest
 
     public function testAddUsingNameButNoTypeAndOptions()
     {
-        $this->form = $this->getBuilder('name', null, '\stdClass')
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
-            ->getForm();
+        $this->form = $this->createCompoundForm('name', '\stdClass');
 
         $child = $this->getBuilder('foo')->getForm();
 
@@ -535,13 +528,9 @@ class CompoundFormTest extends AbstractFormTest
      */
     public function testSubmitRestoresViewDataIfCompoundAndEmpty()
     {
-        $mapper = $this->getDataMapper();
         $object = new \stdClass();
-        $form = $this->getBuilder('name', null, 'stdClass')
-            ->setCompound(true)
-            ->setDataMapper($mapper)
-            ->setData($object)
-            ->getForm();
+        $form = $this->createCompoundForm('name', 'stdClass')
+            ->setData($object);
 
         $form->submit([]);
 
@@ -613,10 +602,8 @@ class CompoundFormTest extends AbstractFormTest
             'REQUEST_METHOD' => $method,
         ]);
 
-        $form = $this->getBuilder('author')
+        $form = $this->getCompoundFormBuilder('author')
             ->setMethod($method)
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
             ->setRequestHandler(new HttpFoundationRequestHandler())
             ->getForm();
         $form->add($this->getBuilder('name')->getForm());
@@ -659,10 +646,8 @@ class CompoundFormTest extends AbstractFormTest
             'REQUEST_METHOD' => $method,
         ]);
 
-        $form = $this->getBuilder('')
+        $form = $this->getCompoundFormBuilder('')
             ->setMethod($method)
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
             ->setRequestHandler(new HttpFoundationRequestHandler())
             ->getForm();
         $form->add($this->getBuilder('name')->getForm());
@@ -756,10 +741,8 @@ class CompoundFormTest extends AbstractFormTest
             'REQUEST_METHOD' => 'GET',
         ]);
 
-        $form = $this->getBuilder('author')
+        $form = $this->getCompoundFormBuilder('author')
             ->setMethod('GET')
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
             ->setRequestHandler(new HttpFoundationRequestHandler())
             ->getForm();
         $form->add($this->getBuilder('firstName')->getForm());
@@ -783,10 +766,8 @@ class CompoundFormTest extends AbstractFormTest
             'REQUEST_METHOD' => 'GET',
         ]);
 
-        $form = $this->getBuilder('')
+        $form = $this->getCompoundFormBuilder('')
             ->setMethod('GET')
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
             ->setRequestHandler(new HttpFoundationRequestHandler())
             ->getForm();
         $form->add($this->getBuilder('firstName')->getForm());
@@ -893,9 +874,7 @@ class CompoundFormTest extends AbstractFormTest
             ->method('createView')
             ->will($this->returnValue($field2View));
 
-        $this->form = $this->getBuilder('form', null, null, $options)
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
+        $this->form = $this->getCompoundFormBuilder('form', null, $options)
             ->setType($type)
             ->getForm();
         $this->form->add($field1);
@@ -929,14 +908,7 @@ class CompoundFormTest extends AbstractFormTest
 
     public function testNoClickedButton()
     {
-        $button = $this->getMockBuilder('Symfony\Component\Form\SubmitButton')
-            ->setConstructorArgs([new SubmitButtonBuilder('submit')])
-            ->setMethods(['isClicked'])
-            ->getMock();
-
-        $button->expects($this->any())
-            ->method('isClicked')
-            ->will($this->returnValue(false));
+        $button = new SubmitButton(new SubmitButtonBuilder('submit'));
 
         $parentForm = $this->getBuilder('parent')->getForm();
         $nestedForm = $this->getBuilder('nested')->getForm();
@@ -947,59 +919,49 @@ class CompoundFormTest extends AbstractFormTest
         $this->form->submit([]);
 
         $this->assertNull($this->form->getClickedButton());
+        $this->assertFalse($button->isClicked());
     }
 
     public function testClickedButton()
     {
-        $button = $this->getMockBuilder('Symfony\Component\Form\SubmitButton')
-            ->setConstructorArgs([new SubmitButtonBuilder('submit')])
-            ->setMethods(['isClicked'])
-            ->getMock();
-
-        $button->expects($this->any())
-            ->method('isClicked')
-            ->will($this->returnValue(true));
+        $button = new SubmitButton(new SubmitButtonBuilder('submit'));
 
         $this->form->add($button);
-        $this->form->submit([]);
+        $this->form->submit(['submit' => 'yes']);
 
         $this->assertSame($button, $this->form->getClickedButton());
+        $this->assertTrue($button->isClicked());
     }
 
     public function testClickedButtonFromNestedForm()
     {
-        $button = $this->getBuilder('submit')->getForm();
+        $button = new SubmitButton(new SubmitButtonBuilder('submit'));
 
-        $nestedForm = $this->getMockBuilder('Symfony\Component\Form\Form')
-            ->setConstructorArgs([$this->getBuilder('nested')])
-            ->setMethods(['getClickedButton'])
-            ->getMock();
-
-        $nestedForm->expects($this->any())
-            ->method('getClickedButton')
-            ->will($this->returnValue($button));
+        $nestedForm = $this->createCompoundForm('nested');
+        $nestedForm->add($button);
 
         $this->form->add($nestedForm);
-        $this->form->submit([]);
+        $this->form->submit([
+            'nested' => [
+                'submit' => 'yes',
+            ]
+        ]);
 
         $this->assertSame($button, $this->form->getClickedButton());
     }
 
     public function testClickedButtonFromParentForm()
     {
-        $button = $this->getBuilder('submit')->getForm();
+        $button = new SubmitButton(new SubmitButtonBuilder('submit'));
 
-        $parentForm = $this->getMockBuilder('Symfony\Component\Form\Form')
-            ->setConstructorArgs([$this->getBuilder('parent')])
-            ->setMethods(['getClickedButton'])
-            ->getMock();
-
-        $parentForm->expects($this->any())
-            ->method('getClickedButton')
-            ->will($this->returnValue($button));
+        $parentForm = $this->createCompoundForm('parent');
+        $parentForm->add($button);
 
         $this->form->setParent($parentForm);
-        $this->form->submit([]);
+        $parentForm->submit([
+            'name' => 'foo',
+            'submit' => 'yes',
+        ]);
 
         $this->assertSame($button, $this->form->getClickedButton());
     }

@@ -17,6 +17,7 @@ use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension;
 use Symfony\Component\Form\FormTypeGuesserChain;
 use Symfony\Component\Form\FormTypeGuesserInterface;
+use Symfony\Component\Form\Tests\Fixtures\DummyFormTypeGuesser;
 
 class DependencyInjectionExtensionTest extends TestCase
 {
@@ -99,7 +100,7 @@ class DependencyInjectionExtensionTest extends TestCase
 
     public function testGetTypeGuesser()
     {
-        $extension = new DependencyInjectionExtension(new ContainerBuilder(), [], [$this->getMockBuilder(FormTypeGuesserInterface::class)->getMock()]);
+        $extension = new DependencyInjectionExtension(new ContainerBuilder(), [], [new DummyFormTypeGuesser()]);
 
         $this->assertInstanceOf(FormTypeGuesserChain::class, $extension->getTypeGuesser());
     }
@@ -117,7 +118,7 @@ class DependencyInjectionExtensionTest extends TestCase
     public function testLegacyGetTypeGuesser()
     {
         $container = new ContainerBuilder();
-        $container->set('foo', new DummyTypeGuesser());
+        $container->set('foo', new DummyFormTypeGuesser());
 
         $extension = new DependencyInjectionExtension($container, [], [], ['foo']);
 
@@ -147,24 +148,5 @@ class DummyExtension extends AbstractTypeExtension
     public function getExtendedType()
     {
         return $this->extendedType;
-    }
-}
-
-class DummyTypeGuesser implements FormTypeGuesserInterface
-{
-    public function guessType($class, $property)
-    {
-    }
-
-    public function guessRequired($class, $property)
-    {
-    }
-
-    public function guessMaxLength($class, $property)
-    {
-    }
-
-    public function guessPattern($class, $property)
-    {
     }
 }

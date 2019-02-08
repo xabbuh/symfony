@@ -13,11 +13,15 @@ namespace Symfony\Component\Form\Tests;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\Form\Extension\Core\DataMapper\PropertyPathMapper;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormConfigBuilder;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\ResolvedFormType;
 use Symfony\Component\Form\Tests\Fixtures\FixedDataTransformer;
 use Symfony\Component\Form\Tests\Fixtures\FixedFilterListener;
 use Symfony\Component\PropertyAccess\PropertyPath;
@@ -99,45 +103,43 @@ class SimpleFormTest extends AbstractFormTest
     // https://github.com/symfony/symfony/commit/d4f4038f6daf7cf88ca7c7ab089473cce5ebf7d8#commitcomment-1632879
     public function testDataIsInitializedFromSubmit()
     {
-        $mock = $this->getMockBuilder('\stdClass')
-            ->setMethods(['preSetData', 'preSubmit'])
-            ->getMock();
-        $mock->expects($this->at(0))
-            ->method('preSetData');
-        $mock->expects($this->at(1))
-            ->method('preSubmit');
+        $preSetDataCalled = false;
+        $preSubmitCalled = false;
 
         $config = new FormConfigBuilder('name', null, $this->dispatcher);
-        $config->addEventListener(FormEvents::PRE_SET_DATA, [$mock, 'preSetData']);
-        $config->addEventListener(FormEvents::PRE_SUBMIT, [$mock, 'preSubmit']);
+        $config->addEventListener(FormEvents::PRE_SET_DATA, function () use (&$preSetDataCalled) {
+            $preSetDataCalled = true;
+        });
+        $config->addEventListener(FormEvents::PRE_SUBMIT, function () use (&$preSetDataCalled, &$preSubmitCalled) {
+            $preSubmitCalled = $preSetDataCalled;
+        });
         $form = new Form($config);
 
         // no call to setData() or similar where the object would be
         // initialized otherwise
 
         $form->submit('foobar');
+
+        $this->assertTrue($preSetDataCalled);
+        $this->assertTrue($preSubmitCalled);
     }
 
     // https://github.com/symfony/symfony/pull/7789
     public function testFalseIsConvertedToNull()
     {
-        $mock = $this->getMockBuilder('\stdClass')
-            ->setMethods(['preSubmit'])
-            ->getMock();
-        $mock->expects($this->once())
-            ->method('preSubmit')
-            ->with($this->callback(function ($event) {
-                return null === $event->getData();
-            }));
+        $eventData = false;
 
         $config = new FormConfigBuilder('name', null, $this->dispatcher);
-        $config->addEventListener(FormEvents::PRE_SUBMIT, [$mock, 'preSubmit']);
+        $config->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use (&$eventData) {
+            $eventData = $event->getData();
+        });
         $form = new Form($config);
 
         $form->submit(false);
 
         $this->assertTrue($form->isValid());
         $this->assertNull($form->getData());
+        $this->assertNull($eventData);
     }
 
     /**
@@ -299,7 +301,7 @@ class SimpleFormTest extends AbstractFormTest
 
     public function testValidIfSubmitted()
     {
-        $form = $this->getBuilder()->getForm();
+        $form = $this->createSimpleForm();
         $form->submit('foobar');
 
         $this->assertTrue($form->isValid());
@@ -324,7 +326,7 @@ class SimpleFormTest extends AbstractFormTest
 
     public function testNotValidIfErrors()
     {
-        $form = $this->getBuilder()->getForm();
+        $form = $this->createSimpleForm();
         $form->submit('foobar');
         $form->addError(new FormError('Error!'));
 
@@ -349,12 +351,12 @@ class SimpleFormTest extends AbstractFormTest
     public function testSetParentThrowsExceptionIfAlreadySubmitted()
     {
         $this->form->submit([]);
-        $this->form->setParent($this->getBuilder('parent')->getForm());
+        $this->form->setParent($this->createSimpleForm('parent'));
     }
 
     public function testSubmitted()
     {
-        $form = $this->getBuilder()->getForm();
+        $form = $this->createSimpleForm();
         $form->submit('foobar');
 
         $this->assertTrue($form->isSubmitted());
@@ -461,7 +463,7 @@ class SimpleFormTest extends AbstractFormTest
      */
     public function testSetDataConvertsScalarToStringIfNoTransformer()
     {
-        $form = $this->getBuilder()->getForm();
+        $form = $this->createSimpleForm();
 
         $form->setData(1);
 
@@ -496,7 +498,7 @@ class SimpleFormTest extends AbstractFormTest
      */
     public function testSetDataConvertsNullToStringIfNoTransformer()
     {
-        $form = $this->getBuilder()->getForm();
+        $form = $this->createSimpleForm();
 
         $form->setData(null);
 
@@ -535,7 +537,7 @@ class SimpleFormTest extends AbstractFormTest
 
     public function testSubmitConvertsEmptyToNullIfNoTransformer()
     {
-        $form = $this->getBuilder()->getForm();
+        $form = $this->createSimpleForm();
 
         $form->submit('');
 
@@ -755,14 +757,14 @@ class SimpleFormTest extends AbstractFormTest
 
     public function testFormCanHaveEmptyName()
     {
-        $form = $this->getBuilder('')->getForm();
+        $form = $this->createSimpleForm('');
 
         $this->assertEquals('', $form->getName());
     }
 
     public function testSetNullParentWorksWithEmptyName()
     {
-        $form = $this->getBuilder('')->getForm();
+        $form = $this->createSimpleForm('');
         $form->setParent(null);
 
         $this->assertNull($form->getParent());
@@ -774,9 +776,7 @@ class SimpleFormTest extends AbstractFormTest
      */
     public function testFormCannotHaveEmptyNameNotInRootLevel()
     {
-        $this->getBuilder()
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
+        $this->getCompoundFormBuilder()
             ->add($this->getBuilder(''))
             ->getForm();
     }
@@ -791,11 +791,8 @@ class SimpleFormTest extends AbstractFormTest
     // see https://github.com/symfony/symfony/issues/3903
     public function testGetPropertyPathDefaultsToNameIfParentHasDataClass()
     {
-        $parent = $this->getBuilder(null, null, 'stdClass')
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
-            ->getForm();
-        $form = $this->getBuilder('name')->getForm();
+        $parent = $this->createCompoundForm(null, 'stdClass');
+        $form = $this->createSimpleForm('name');
         $parent->add($form);
 
         $this->assertEquals(new PropertyPath('name'), $form->getPropertyPath());
@@ -804,11 +801,8 @@ class SimpleFormTest extends AbstractFormTest
     // see https://github.com/symfony/symfony/issues/3903
     public function testGetPropertyPathDefaultsToIndexedNameIfParentDataClassIsNull()
     {
-        $parent = $this->getBuilder()
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
-            ->getForm();
-        $form = $this->getBuilder('name')->getForm();
+        $parent = $this->createCompoundForm();
+        $form = $this->createSimpleForm('name');
         $parent->add($form);
 
         $this->assertEquals(new PropertyPath('[name]'), $form->getPropertyPath());
@@ -816,13 +810,8 @@ class SimpleFormTest extends AbstractFormTest
 
     public function testGetPropertyPathDefaultsToNameIfFirstParentWithoutInheritDataHasDataClass()
     {
-        $grandParent = $this->getBuilder(null, null, 'stdClass')
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
-            ->getForm();
-        $parent = $this->getBuilder()
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
+        $grandParent = $this->createCompoundForm(null, 'stdClass');
+        $parent = $this->getCompoundFormBuilder()
             ->setInheritData(true)
             ->getForm();
         $form = $this->getBuilder('name')->getForm();
@@ -834,16 +823,11 @@ class SimpleFormTest extends AbstractFormTest
 
     public function testGetPropertyPathDefaultsToIndexedNameIfDataClassOfFirstParentWithoutInheritDataIsNull()
     {
-        $grandParent = $this->getBuilder()
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
-            ->getForm();
-        $parent = $this->getBuilder()
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
+        $grandParent = $this->createCompoundForm();
+        $parent = $this->getCompoundFormBuilder()
             ->setInheritData(true)
             ->getForm();
-        $form = $this->getBuilder('name')->getForm();
+        $form = $this->createSimpleForm('name');
         $grandParent->add($parent);
         $parent->add($form);
 
@@ -867,7 +851,7 @@ class SimpleFormTest extends AbstractFormTest
 
     public function testViewDataMayBeArrayAccessIfDataClassIsNull()
     {
-        $arrayAccess = $this->getMockBuilder('\ArrayAccess')->getMock();
+        $arrayAccess = new \ArrayObject();
         $config = new FormConfigBuilder('name', null, $this->dispatcher);
         $config->addViewTransformer(new FixedDataTransformer([
             '' => '',
@@ -915,14 +899,12 @@ class SimpleFormTest extends AbstractFormTest
     {
         $called = 0;
 
-        $child = $this->getBuilder('child', $this->dispatcher);
+        $child = $this->getBuilder('child', new EventDispatcher());
         $child->addEventListener(FormEvents::PRE_SUBMIT, function () use (&$called) {
             ++$called;
         });
 
-        $parent = $this->getBuilder('parent', new EventDispatcher())
-            ->setCompound(true)
-            ->setDataMapper($this->getDataMapper())
+        $parent = $this->getCompoundFormBuilder('parent')
             ->add($child)
             ->getForm();
 

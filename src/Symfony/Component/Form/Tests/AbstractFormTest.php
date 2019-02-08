@@ -14,6 +14,7 @@ namespace Symfony\Component\Form\Tests;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Form\Extension\Core\DataMapper\PropertyPathMapper;
 use Symfony\Component\Form\FormBuilder;
 
 abstract class AbstractFormTest extends TestCase
@@ -65,17 +66,28 @@ abstract class AbstractFormTest extends TestCase
         return new FormBuilder($name, $dataClass, $dispatcher ?: $this->dispatcher, $this->factory, $options);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
+    protected function getCompoundFormBuilder($name = 'name', $dataClass = null, array $options = [])
+    {
+        return (new FormBuilder($name, $dataClass, $this->dispatcher, $this->factory, $options))
+            ->setCompound(true)
+            ->setDataMapper(new PropertyPathMapper());
+    }
+
+    protected function createCompoundForm($name = 'name', $dataClass = null)
+    {
+        return $this->getCompoundFormBuilder($name, $dataClass)->getForm();
+    }
+
+    protected function createSimpleForm($name = 'name', $dataClass = null)
+    {
+        return (new FormBuilder($name, $dataClass, $this->dispatcher, $this->factory))->getForm();
+    }
+
     protected function getDataMapper()
     {
         return $this->getMockBuilder('Symfony\Component\Form\DataMapperInterface')->getMock();
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
     protected function getDataTransformer()
     {
         return $this->getMockBuilder('Symfony\Component\Form\DataTransformerInterface')->getMock();
