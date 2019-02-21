@@ -13,6 +13,7 @@ namespace Symfony\Component\HttpFoundation\Tests\Session;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
+use Symfony\Component\HttpFoundation\Session\Attribute\NamespacedAttributeBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -259,5 +260,19 @@ class SessionTest extends TestCase
 
         $flash->get('hello');
         $this->assertTrue($this->session->isEmpty());
+    }
+
+    public function testSetWithNamespacedPathReplacesExistingValue()
+    {
+        $session = new Session(new MockArraySessionStorage(), new NamespacedAttributeBag());
+        $session->set('test', ['a' => 'hello', 'b' => 'world']);
+
+        $this->assertSame('hello', $session->get('test/a'));
+        $this->assertSame(['a' => 'hello', 'b' => 'world'], $session->get('test'));
+
+        $session->set('test/a', 'John');
+
+        $this->assertSame('John', $session->get('test/a'));
+        $this->assertSame(['a' => 'John', 'b' => 'world'], $session->get('test'));
     }
 }
