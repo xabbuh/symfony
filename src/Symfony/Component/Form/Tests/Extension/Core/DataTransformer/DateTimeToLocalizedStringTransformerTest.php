@@ -83,6 +83,21 @@ class DateTimeToLocalizedStringTransformerTest extends TestCase
         ];
     }
 
+    public function testTimezoneDifferences()
+    {
+        $transformer = new DateTimeToLocalizedStringTransformer(
+            'Europe/Moscow',
+            'Europe/Moscow',
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::NONE
+        );
+
+        $time = new \DateTime('2014-07-01 23:00:00', new \DateTimeZone('Europe/Moscow'));
+        $output = $transformer->transform($time);
+
+        $this->assertSame('01.07.14', $output);
+    }
+
     /**
      * @dataProvider dataProvider
      */
