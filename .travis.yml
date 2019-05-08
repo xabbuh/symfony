@@ -20,15 +20,15 @@ env:
 
 matrix:
     include:
-        - php: hhvm-3.18
-          sudo: required
-          group: edge
+#        - php: hhvm-3.18
+#          sudo: required
+#          group: edge
         - php: 5.5
           env: php_extra="5.6 7.0 7.1"
-        - php: 7.2
-          env: deps=high
-        - php: 7.3
-          env: deps=low
+#        - php: 7.2
+#          env: deps=high
+#        - php: 7.3
+#          env: deps=low
     fast_finish: true
 
 cache:
