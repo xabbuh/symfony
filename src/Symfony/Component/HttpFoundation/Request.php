@@ -1024,12 +1024,17 @@ class Request
     public function getPort()
     {
         if ($this->isFromTrustedProxy() && $host = $this->getTrustedValues(self::HEADER_CLIENT_PORT)) {
+            var_dump(__LINE__);
             $host = $host[0];
         } elseif ($this->isFromTrustedProxy() && $host = $this->getTrustedValues(self::HEADER_CLIENT_HOST)) {
+            var_dump(__LINE__);
             $host = $host[0];
         } elseif (!$host = $this->headers->get('HOST')) {
+            var_dump(__LINE__);
             return $this->server->get('SERVER_PORT');
         }
+
+        var_dump($host);
 
         if ('[' === $host[0]) {
             $pos = strpos($host, ':', strrpos($host, ']'));
@@ -1037,9 +1042,14 @@ class Request
             $pos = strrpos($host, ':');
         }
 
+        var_dump($pos);
+
         if (false !== $pos && '' !== $port = substr($host, $pos + 1)) {
+            var_dump($port);
             return (int) $port;
         }
+
+        var_dump('https' === $this->getScheme() ? 443 : 80);
 
         return 'https' === $this->getScheme() ? 443 : 80;
     }
