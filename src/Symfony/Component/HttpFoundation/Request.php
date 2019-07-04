@@ -1044,7 +1044,7 @@ class Request
 
         var_dump($pos);
 
-        if (false !== $pos && '' !== $port = substr($host, $pos + 1)) {
+        if (false !== $pos && '' !== $port = substr($host, $pos + 1) && false !== $port = substr($host, $pos + 1)) {
             var_dump($port);
             return (int) $port;
         }
