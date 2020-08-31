@@ -40,6 +40,13 @@ class ProcessTest extends TestCase
         self::$sigchild = false !== strpos(ob_get_clean(), '--enable-sigchild');
     }
 
+    protected function setUp()
+    {
+        if ('testThatProcessDoesNotThrowWarningDuringRun' !== $this->getName(false)) {
+            $this->markTestSkipped();
+        }
+    }
+
     protected function tearDown()
     {
         if (self::$process) {
