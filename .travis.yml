@@ -115,12 +115,12 @@ install:
       # To run a PR with a patched phpunit-bridge, first submit the patch for the
       # phpunit-bridge as a separate PR against the next feature-branch then
       # uncomment and update the following line with that PR number
-      SYMFONY_PHPUNIT_BRIDGE_PR=5
+      SYMFONY_PHPUNIT_BRIDGE_PR=6
 
       if [[ $SYMFONY_PHPUNIT_BRIDGE_PR ]]; then
           git fetch --depth=2 origin refs/pull/$SYMFONY_PHPUNIT_BRIDGE_PR/head
           git rm -rq src/Symfony/Bridge/PhpUnit
-          git checkout -q 5f7821553d -- src/Symfony/Bridge/PhpUnit
+          git checkout -q FETCH_HEAD -- src/Symfony/Bridge/PhpUnit
           export SYMFONY_VERSION=$(cat src/Symfony/Bridge/PhpUnit/composer.json | grep '^ *"dev-master". *"[1-9]' | grep -o '[0-9.]*')
           sed -i 's/"symfony\/phpunit-bridge": ".*"/"symfony\/phpunit-bridge": "'$SYMFONY_VERSION'.x@dev"/' composer.json
           rm -rf .phpunit
