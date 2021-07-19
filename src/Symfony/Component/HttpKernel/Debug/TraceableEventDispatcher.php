@@ -66,6 +66,9 @@ class TraceableEventDispatcher extends BaseTraceableEventDispatcher
             case KernelEvents::CONTROLLER_ARGUMENTS:
                 $this->stopwatch->start('controller', 'section');
                 break;
+            case KernelEvents::REQUEST:
+                $this->stopwatch->stopSection('');
+                break;
             case KernelEvents::RESPONSE:
                 $token = $event->getResponse()->headers->get('X-Debug-Token');
                 if (null === $token) {
