@@ -156,10 +156,10 @@ class Filesystem
             $files = [$files];
         }
 
-        self::doRemove($files, false);
+        self::doRemove($files);
     }
 
-    private static function doRemove(array $files, bool $isRecursive): void
+    private static function doRemove(array $files): void
     {
         $files = array_reverse($files);
         foreach ($files as $file) {
@@ -169,7 +169,6 @@ class Filesystem
                     throw new IOException(sprintf('Failed to remove symlink "%s": ', $file).self::$lastError);
                 }
             } elseif (is_dir($file)) {
-                if (!$isRecursive) {
                     $tmpName = \dirname(realpath($file)).'/.'.strrev(strtr(base64_encode(random_bytes(2)), '/=', '-.'));
 
                     if (file_exists($tmpName)) {
@@ -185,12 +184,11 @@ class Filesystem
                     } else {
                         $origFile = null;
                     }
-                }
 
                 $files = new \FilesystemIterator($file, \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS);
                 self::doRemove(iterator_to_array($files, true), true);
 
-                if (!self::box('rmdir', $file) && file_exists($file) && !$isRecursive) {
+                if (!self::box('rmdir', $file) && file_exists($file)) {
                     $lastError = self::$lastError;
 
                     if (null !== $origFile && self::box('rename', $file, $origFile)) {
