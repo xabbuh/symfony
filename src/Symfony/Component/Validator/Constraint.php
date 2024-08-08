@@ -108,6 +108,10 @@ abstract class Constraint
      */
     public function __construct(mixed $options = null, ?array $groups = null, mixed $payload = null)
     {
+        if (null !== $options) {
+            trigger_deprecation('symfony/validator', '7.2', 'Support for evaluating options in the base Constraint class is deprecated. Initialize properties in the constructor of %s instead.', static::class);
+        }
+
         unset($this->groups); // enable lazy initialization
 
         $options = $this->normalizeOptions($options);
@@ -122,12 +126,15 @@ abstract class Constraint
     }
 
     /**
+     * @deprecated since Symfony 7.2
+     *
      * @return array<string, mixed>
      */
     protected function normalizeOptions(mixed $options): array
     {
         $normalizedOptions = [];
         $defaultOption = $this->getDefaultOption();
+
         $invalidOptions = [];
         $missingOptions = array_flip($this->getRequiredOptions());
         $knownOptions = get_class_vars(static::class);
@@ -241,6 +248,8 @@ abstract class Constraint
      *
      * Override this method to define a default option.
      *
+     * @deprecated since Symfony 7.2
+     *
      * @see __construct()
      */
     public function getDefaultOption(): ?string
@@ -252,6 +261,8 @@ abstract class Constraint
      * Returns the name of the required options.
      *
      * Override this method if you want to define required options.
+     *
+     * @deprecated since Symfony 7.2
      *
      * @return string[]
      *

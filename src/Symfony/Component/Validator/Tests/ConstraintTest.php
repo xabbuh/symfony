@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 use Symfony\Component\Validator\Tests\Fixtures\ClassConstraint;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintA;
+use Symfony\Component\Validator\Tests\Fixtures\ConstraintAWithNamedArguments;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintB;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintC;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintWithStaticProperty;
@@ -28,6 +29,9 @@ use Symfony\Component\Validator\Tests\Fixtures\ConstraintWithValueAsDefault;
 
 class ConstraintTest extends TestCase
 {
+    /**
+     * @group legacy
+     */
     public function testSetProperties()
     {
         $constraint = new ConstraintA([
@@ -39,6 +43,9 @@ class ConstraintTest extends TestCase
         $this->assertEquals('bar', $constraint->property2);
     }
 
+    /**
+     * @group legacy
+     */
     public function testSetNotExistingPropertyThrowsException()
     {
         $this->expectException(InvalidOptionsException::class);
@@ -48,6 +55,9 @@ class ConstraintTest extends TestCase
         ]);
     }
 
+    /**
+     * @group legacy
+     */
     public function testMagicPropertiesAreNotAllowed()
     {
         $constraint = new ConstraintA();
@@ -57,6 +67,9 @@ class ConstraintTest extends TestCase
         $constraint->foo = 'bar';
     }
 
+    /**
+     * @group legacy
+     */
     public function testInvalidAndRequiredOptionsPassed()
     {
         $this->expectException(InvalidOptionsException::class);
@@ -67,6 +80,9 @@ class ConstraintTest extends TestCase
         ]);
     }
 
+    /**
+     * @group legacy
+     */
     public function testSetDefaultProperty()
     {
         $constraint = new ConstraintA('foo');
@@ -74,6 +90,9 @@ class ConstraintTest extends TestCase
         $this->assertEquals('foo', $constraint->property2);
     }
 
+    /**
+     * @group legacy
+     */
     public function testSetDefaultPropertyDoctrineStyle()
     {
         $constraint = new ConstraintA(['value' => 'foo']);
@@ -81,6 +100,9 @@ class ConstraintTest extends TestCase
         $this->assertEquals('foo', $constraint->property2);
     }
 
+    /**
+     * @group legacy
+     */
     public function testSetDefaultPropertyDoctrineStylePlusOtherProperty()
     {
         $constraint = new ConstraintA(['value' => 'foo', 'property1' => 'bar']);
@@ -89,6 +111,9 @@ class ConstraintTest extends TestCase
         $this->assertEquals('bar', $constraint->property1);
     }
 
+    /**
+     * @group legacy
+     */
     public function testSetDefaultPropertyDoctrineStyleWhenDefaultPropertyIsNamedValue()
     {
         $constraint = new ConstraintWithValueAsDefault(['value' => 'foo']);
@@ -97,6 +122,9 @@ class ConstraintTest extends TestCase
         $this->assertNull($constraint->property);
     }
 
+    /**
+     * @group legacy
+     */
     public function testDontSetDefaultPropertyIfValuePropertyExists()
     {
         $constraint = new ConstraintWithValue(['value' => 'foo']);
@@ -105,6 +133,9 @@ class ConstraintTest extends TestCase
         $this->assertNull($constraint->property);
     }
 
+    /**
+     * @group legacy
+     */
     public function testSetUndefinedDefaultProperty()
     {
         $this->expectException(ConstraintDefinitionException::class);
@@ -112,6 +143,9 @@ class ConstraintTest extends TestCase
         new ConstraintB('foo');
     }
 
+    /**
+     * @group legacy
+     */
     public function testRequiredOptionsMustBeDefined()
     {
         $this->expectException(MissingOptionsException::class);
@@ -119,6 +153,9 @@ class ConstraintTest extends TestCase
         new ConstraintC();
     }
 
+    /**
+     * @group legacy
+     */
     public function testRequiredOptionsPassed()
     {
         $constraint = new ConstraintC(['option1' => 'default']);
@@ -126,6 +163,9 @@ class ConstraintTest extends TestCase
         $this->assertSame('default', $constraint->option1);
     }
 
+    /**
+     * @group legacy
+     */
     public function testGroupsAreConvertedToArray()
     {
         $constraint = new ConstraintA(['groups' => 'Foo']);
@@ -135,17 +175,33 @@ class ConstraintTest extends TestCase
 
     public function testAddDefaultGroupAddsGroup()
     {
+        $constraint = new ConstraintA(groups: ['Default']);
+        $constraint->addImplicitGroupName('Foo');
+        $this->assertEquals(['Default', 'Foo'], $constraint->groups);
+    }
+
+    /**
+     * @group legacy
+     */
+    public function testAddDefaultGroupAddsGroupDoctrineStyle()
+    {
         $constraint = new ConstraintA(['groups' => 'Default']);
         $constraint->addImplicitGroupName('Foo');
         $this->assertEquals(['Default', 'Foo'], $constraint->groups);
     }
 
+    /**
+     * @group legacy
+     */
     public function testAllowsSettingZeroRequiredPropertyValue()
     {
         $constraint = new ConstraintA(0);
         $this->assertEquals(0, $constraint->property2);
     }
 
+    /**
+     * @group legacy
+     */
     public function testCanCreateConstraintWithNoDefaultOptionAndEmptyArray()
     {
         $constraint = new ConstraintB([]);
@@ -169,6 +225,21 @@ class ConstraintTest extends TestCase
 
     public function testSerialize()
     {
+        $constraint = new ConstraintAWithNamedArguments(
+            property1: 'foo',
+            property2: 'bar',
+        );
+
+        $restoredConstraint = unserialize(serialize($constraint));
+
+        $this->assertEquals($constraint, $restoredConstraint);
+    }
+
+    /**
+     * @group legacy
+     */
+    public function testSerializeDoctrineStyle()
+    {
         $constraint = new ConstraintA([
             'property1' => 'foo',
             'property2' => 'bar',
@@ -180,6 +251,27 @@ class ConstraintTest extends TestCase
     }
 
     public function testSerializeInitializesGroupsOptionToDefault()
+    {
+        $constraint = new ConstraintAWithNamedArguments(
+            property1: 'foo',
+            property2: 'bar',
+        );
+
+        $constraint = unserialize(serialize($constraint));
+
+        $expected = new ConstraintAWithNamedArguments(
+            property1: 'foo',
+            property2: 'bar',
+            groups: ['Default']
+        );
+
+        $this->assertEquals($expected, $constraint);
+    }
+
+    /**
+     * @group legacy
+     */
+    public function testSerializeInitializesGroupsOptionToDefaultDoctrineStyle()
     {
         $constraint = new ConstraintA([
             'property1' => 'foo',
@@ -199,6 +291,22 @@ class ConstraintTest extends TestCase
 
     public function testSerializeKeepsCustomGroups()
     {
+        $constraint = new ConstraintAWithNamedArguments(
+            property1: 'foo',
+            property2: 'bar',
+            groups: ['MyGroup']
+        );
+
+        $constraint = unserialize(serialize($constraint));
+
+        $this->assertSame(['MyGroup'], $constraint->groups);
+    }
+
+    /**
+     * @group legacy
+     */
+    public function testSerializeKeepsCustomGroupsDoctrineStyle()
+    {
         $constraint = new ConstraintA([
             'property1' => 'foo',
             'property2' => 'bar',
@@ -216,6 +324,9 @@ class ConstraintTest extends TestCase
         Constraint::getErrorName(1);
     }
 
+    /**
+     * @group legacy
+     */
     public function testOptionsAsDefaultOption()
     {
         $constraint = new ConstraintA($options = ['value1']);
@@ -227,6 +338,9 @@ class ConstraintTest extends TestCase
         $this->assertEquals($options, $constraint->property2);
     }
 
+    /**
+     * @group legacy
+     */
     public function testInvalidOptions()
     {
         $this->expectException(InvalidOptionsException::class);
@@ -234,6 +348,9 @@ class ConstraintTest extends TestCase
         new ConstraintA(['property2' => 'foo', 'bar', 5 => 'baz']);
     }
 
+    /**
+     * @group legacy
+     */
     public function testOptionsWithInvalidInternalPointer()
     {
         $options = ['property1' => 'foo'];
@@ -245,6 +362,9 @@ class ConstraintTest extends TestCase
         $this->assertEquals('foo', $constraint->property1);
     }
 
+    /**
+     * @group legacy
+     */
     public function testAttributeSetUndefinedDefaultOption()
     {
         $this->expectException(ConstraintDefinitionException::class);
@@ -252,6 +372,9 @@ class ConstraintTest extends TestCase
         new ConstraintB(['value' => 1]);
     }
 
+    /**
+     * @group legacy
+     */
     public function testStaticPropertiesAreNoOptions()
     {
         $this->expectException(InvalidOptionsException::class);
@@ -261,6 +384,9 @@ class ConstraintTest extends TestCase
         ]);
     }
 
+    /**
+     * @group legacy
+     */
     public function testSetTypedProperty()
     {
         $constraint = new ConstraintWithTypedProperty([

@@ -85,7 +85,7 @@ class Count extends Constraint
             $min = $max = $exactly;
         }
 
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->min = $min;
         $this->max = $max;

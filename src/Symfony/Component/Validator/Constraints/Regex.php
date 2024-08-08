@@ -65,11 +65,18 @@ class Regex extends Constraint
                 $options = [];
             }
 
-            $options['value'] = $pattern;
+            $message ??= $options['message'] ?? null;
+            $htmlPattern ??= $options['htmlPattern'] ?? null;
+            $match ??= $options['match'] ?? null;
+            $normalizer ??= $options['normalizer'] ?? null;
+            $groups ??= $options['groups'] ?? null;
+            $payload ??= $options['payload'] ?? null;
+            $pattern ??= $options['pattern'] ?? null;
         }
 
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
+        $this->pattern = $pattern ?? $this->pattern;
         $this->message = $message ?? $this->message;
         $this->htmlPattern = $htmlPattern ?? $this->htmlPattern;
         $this->match = $match ?? $this->match;
@@ -80,11 +87,17 @@ class Regex extends Constraint
         }
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getDefaultOption(): ?string
     {
         return 'pattern';
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getRequiredOptions(): array
     {
         return ['pattern'];
@@ -131,5 +144,13 @@ class Regex extends Constraint
 
         // Trim trailing $, otherwise append .*
         return '$' === $pattern[\strlen($pattern) - 1] ? substr($pattern, 0, -1) : $pattern.'.*';
+    }
+
+    /**
+     * @internal to be removed in 7.2
+     */
+    protected function normalizeOptions(mixed $options): array
+    {
+        return [];
     }
 }

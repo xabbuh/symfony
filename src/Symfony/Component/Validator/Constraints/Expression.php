@@ -71,21 +71,33 @@ class Expression extends Constraint
                 $options = [];
             }
 
-            $options['value'] = $expression;
+            $message ??= $options['message'] ?? null;
+            $expression = $options['expression'] ?? null;
+            $values ??= $options['values'] ?? null;
+            $groups ??= $options['groups'] ?? null;
+            $payload ??= $options['payload'] ?? null;
+            $negate ??= $options['negate'] ?? null;
         }
 
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->message = $message ?? $this->message;
+        $this->expression = $expression ?? $this->expression;
         $this->values = $values ?? $this->values;
         $this->negate = $negate ?? $this->negate;
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getDefaultOption(): ?string
     {
         return 'expression';
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getRequiredOptions(): array
     {
         return ['expression'];
@@ -99,5 +111,13 @@ class Expression extends Constraint
     public function validatedBy(): string
     {
         return 'validator.expression';
+    }
+
+    /**
+     * @internal to be removed in 7.2
+     */
+    protected function normalizeOptions(mixed $options): array
+    {
+        return [];
     }
 }

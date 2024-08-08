@@ -86,6 +86,18 @@ class Collection extends Composite
         return 'fields';
     }
 
+    /**
+     * @internal
+     */
+    protected function normalizeOptions(mixed $options): array
+    {
+        if (null === $options) {
+            return [];
+        }
+
+        return parent::normalizeOptions($options);
+    }
+
     private static function isFieldsOption($options): bool
     {
         if (!\is_array($options)) {

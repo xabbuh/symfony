@@ -56,4 +56,16 @@ class Sequentially extends Composite
     {
         return [self::CLASS_CONSTRAINT, self::PROPERTY_CONSTRAINT];
     }
+
+    /**
+     * @internal
+     */
+    protected function normalizeOptions(mixed $options): array
+    {
+        if (null === $options) {
+            return [];
+        }
+
+        return parent::normalizeOptions($options);
+    }
 }

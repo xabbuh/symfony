@@ -39,11 +39,17 @@ class All extends Composite
         parent::__construct($constraints ?? [], $groups, $payload);
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getDefaultOption(): ?string
     {
         return 'constraints';
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getRequiredOptions(): array
     {
         return ['constraints'];
@@ -52,5 +58,17 @@ class All extends Composite
     protected function getCompositeOption(): string
     {
         return 'constraints';
+    }
+
+    /**
+     * @internal
+     */
+    protected function normalizeOptions(mixed $options): array
+    {
+        if (null === $options) {
+            return [];
+        }
+
+        return parent::normalizeOptions($options);
     }
 }

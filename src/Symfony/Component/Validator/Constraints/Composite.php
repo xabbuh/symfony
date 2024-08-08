@@ -51,6 +51,13 @@ abstract class Composite extends Constraint
      */
     public function __construct(mixed $options = null, ?array $groups = null, mixed $payload = null)
     {
+        $compositeOption = $this->getCompositeOption();
+
+        if (is_array($options) && array_is_list($options) || $options instanceof Constraint) {
+            $this->$compositeOption = $options;
+            $options = null;
+        }
+
         parent::__construct($options, $groups, $payload);
 
         $this->initializeNestedConstraints();

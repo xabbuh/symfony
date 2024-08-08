@@ -66,21 +66,36 @@ class CardScheme extends Constraint
                 $options = [];
             }
 
-            $options['value'] = $schemes;
+            $options['schemes'] = $schemes;
         }
 
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->message = $message ?? $this->message;
+        $this->schemes = $options['schemes'] ?? null;
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getDefaultOption(): ?string
     {
         return 'schemes';
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getRequiredOptions(): array
     {
         return ['schemes'];
+    }
+
+    /**
+     * @internal
+     */
+    protected function normalizeOptions(mixed $options): array
+    {
+        return [];
     }
 }

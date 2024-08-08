@@ -66,4 +66,16 @@ class AtLeastOneOf extends Composite
     {
         return 'constraints';
     }
+
+    /**
+     * @internal
+     */
+    protected function normalizeOptions(mixed $options): array
+    {
+        if (null === $options) {
+            return [];
+        }
+
+        return parent::normalizeOptions($options);
+    }
 }

@@ -53,7 +53,7 @@ final class PasswordStrength extends Constraint
 
         $options['minScore'] ??= self::STRENGTH_MEDIUM;
 
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->minScore = $minScore ?? $this->minScore;
         $this->message = $message ?? $this->message;

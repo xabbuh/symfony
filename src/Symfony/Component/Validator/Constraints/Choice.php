@@ -79,17 +79,13 @@ class Choice extends Constraint
     ) {
         if (\is_array($options) && $options && array_is_list($options)) {
             $choices ??= $options;
-            $options = [];
         } elseif (\is_array($options) && [] !== $options) {
             trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
         }
 
-        if (null !== $choices) {
-            $options['value'] = $choices;
-        }
+        parent::__construct(null, $groups, $payload);
 
-        parent::__construct($options, $groups, $payload);
-
+        $this->choices = $choices ?? $this->choices;
         $this->callback = $callback ?? $this->callback;
         $this->multiple = $multiple ?? $this->multiple;
         $this->strict = $strict ?? $this->strict;

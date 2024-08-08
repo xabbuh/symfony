@@ -43,13 +43,28 @@ abstract class AbstractComparison extends Constraint
                 $options = [];
             }
 
-            $options['value'] = $value;
+            $propertyPath ??= $options['propertyPath'] ?? null;
+            $message ??= $options['message'] ?? null;
+            $groups ??= $options['groups'] ?? null;
+            $payload ??= $options['payload'] ?? null;
+            $value ??= $options['value'] ?? null;
+        } elseif (is_array($options)) {
+            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the %s constraint is deprecated, use named arguments instead.', static::class);
+
+            $value ??= $options['value'] ?? null;
+            $propertyPath ??= $options['propertyPath'] ?? null;
+            $message ??= $options['message'] ?? null;
+            $groups ??= $options['groups'] ?? null;
+            $payload ??= $options['payload'] ?? null;
         }
 
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->message = $message ?? $this->message;
         $this->propertyPath = $propertyPath ?? $this->propertyPath;
+
+        $defaultOption = $this->getDefaultOption();
+        $this->$defaultOption = $value ?? $this->$defaultOption;
 
         if (null === $this->value && null === $this->propertyPath) {
             throw new ConstraintDefinitionException(\sprintf('The "%s" constraint requires either the "value" or "propertyPath" option to be set.', static::class));
@@ -64,6 +79,9 @@ abstract class AbstractComparison extends Constraint
         }
     }
 
+    /**
+     * @deprecated since Symfony 7.2
+     */
     public function getDefaultOption(): ?string
     {
         return 'value';
