@@ -21,7 +21,11 @@ use Symfony\Component\Validator\Tests\IcuCompatibilityTrait;
  */
 class EqualToValidatorTest extends AbstractComparisonValidatorTestCase
 {
+    use CompareWithNullValueAtPropertyAtTestTrait;
     use IcuCompatibilityTrait;
+    use InvalidComparisonToValueTestTrait;
+    use ThrowsOnInvalidStringDatesTestTrait;
+    use ValidComparisonToValueTrait;
 
     protected function createValidator(): EqualToValidator
     {
