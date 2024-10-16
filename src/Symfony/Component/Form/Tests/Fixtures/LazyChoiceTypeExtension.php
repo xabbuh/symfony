@@ -13,6 +13,8 @@ namespace Symfony\Component\Form\Tests\Fixtures;
 
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\ChoiceList\ChoiceList;
+use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
+use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LazyChoiceTypeExtension extends AbstractTypeExtension
@@ -21,10 +23,13 @@ class LazyChoiceTypeExtension extends AbstractTypeExtension
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefault('choice_loader', ChoiceList::lazy($this, fn () => [
+        if (self::$extendedType === CurrencyType::class) {
+            CurrencyType::$debugInfo[] = __METHOD__;
+        }
+        $resolver->setDefault('choice_loader', ChoiceList::loader($this, new CallbackChoiceLoader(fn () => [
             'Lazy A' => 'lazy_a',
             'Lazy B' => 'lazy_b',
-        ]));
+        ])));
     }
 
     public static function getExtendedTypes(): iterable

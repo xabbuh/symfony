@@ -12,6 +12,7 @@
 namespace Symfony\Component\Form\Tests\Extension\Core\Type;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\Form\Tests\Fixtures\ChoiceTypeExtension;
 use Symfony\Component\Form\Tests\Fixtures\LazyChoiceTypeExtension;
@@ -43,14 +44,22 @@ class ExtendedChoiceTypeTest extends TestCase
      */
     public function testChoiceLoaderIsOverridden($type)
     {
-        $this->markTestIncomplete('fails on PHPUnit 11.4');
+        if ($type === CurrencyTypeTest::TESTED_TYPE) {
+            CurrencyType::$debug = true;
+        }
         LazyChoiceTypeExtension::$extendedType = $type;
         $factory = Forms::createFormFactoryBuilder()
             ->addTypeExtension(new LazyChoiceTypeExtension())
             ->getFormFactory()
         ;
 
-        $choices = $factory->create($type)->createView()->vars['choices'];
+        $form = $factory->create($type);
+        $choices = $form->createView()->vars['choices'];
+
+        if ($type === CurrencyTypeTest::TESTED_TYPE) {
+            dump(CurrencyType::$debugInfo);
+            dump($form->getConfig()->getOption('choice_loader'));
+        }
 
         $this->assertCount(2, $choices);
         $this->assertSame('Lazy A', $choices[0]->label);

@@ -27,10 +27,6 @@ jobs:
       matrix:
         include:
           - php: '8.2'
-          - php: '8.2'
-            mode: high-deps
-          - php: '8.2'
-            mode: low-deps
           - php: '8.3'
           - php: '8.4'
             #mode: experimental
@@ -118,7 +114,7 @@ jobs:
           if [[ ! "${{ matrix.mode }}" = *-deps && $SYMFONY_VERSION != $SYMFONY_FEATURE_BRANCH ]]; then
             echo COMPONENTS=$(find src/Symfony -mindepth 2 -type f -name phpunit.xml.dist -not -wholename '*/Bridge/PhpUnit/*' | xargs -I{} dirname {}) >> $GITHUB_ENV
           else
-            echo COMPONENTS=$(find src/Symfony -mindepth 2 -type f -name phpunit.xml.dist | xargs -I{} dirname {}) >> $GITHUB_ENV
+            echo COMPONENTS=src/Symfony/Component/Form >> $GITHUB_ENV
           fi
 
           # Legacy tests are skipped when deps=high and when the current branch version has not the same major version number as the next one

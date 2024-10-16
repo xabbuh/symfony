@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\OptionsResolver;
 
+use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
@@ -204,6 +205,9 @@ class OptionsResolver implements Options
         if ($this->locked) {
             throw new AccessException('Default values cannot be set from a lazy option or normalizer.');
         }
+        if (CurrencyType::$debug && 'choice_loader' === $option) {
+            CurrencyType::$debugInfo[] = spl_object_id($this);
+        }
 
         // If an option is a closure that should be evaluated lazily, store it
         // in the "lazy" property.
@@ -228,11 +232,23 @@ class OptionsResolver implements Options
 
                 // Make sure the option is processed and is not nested anymore
                 unset($this->resolved[$option], $this->nested[$option]);
+                if (CurrencyType::$debug && 'choice_loader' === $option) {
+                    CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defined) ? 'defined' : 'not defined';
+                    CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? 'lazy' : 'not lazy';
+                    CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defaults) ? 'default' : 'no default';
+                    CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->resolved) ? 'resolved' : 'not resolved';
+                    CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->nested) ? 'nested' : 'not nested';
+                    CurrencyType::$debugInfo[] = get_debug_type($this->defaults['choice_loader']);
+                    CurrencyType::$debugInfo[] = get_debug_type($this->lazy['choice_loader']);
+                }
 
                 return $this;
             }
 
             if (isset($params[0]) && null !== ($type = $params[0]->getType()) && self::class === $type->getName() && (!isset($params[1]) || (($type = $params[1]->getType()) instanceof \ReflectionNamedType && Options::class === $type->getName()))) {
+                if (CurrencyType::$debug && 'choice_loader' === $option) {
+                    CurrencyType::$debugInfo[] = __LINE__;
+                }
                 // Store closure for later evaluation
                 $this->nested[$option][] = $value;
                 $this->defaults[$option] = [];
@@ -258,6 +274,14 @@ class OptionsResolver implements Options
 
         $this->defaults[$option] = $value;
         $this->defined[$option] = true;
+        if (CurrencyType::$debug && 'choice_loader' === $option) {
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defined) ? 'defined' : 'not defined';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? 'lazy' : 'not lazy';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defaults) ? 'default' : 'no default';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->resolved) ? 'resolved' : 'not resolved';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->nested) ? 'nested' : 'not nested';
+            CurrencyType::$debugInfo[] = get_debug_type($this->defaults['choice_loader']);
+        }
 
         return $this;
     }
@@ -905,6 +929,17 @@ class OptionsResolver implements Options
             $clone->offsetGet($option);
         }
 
+//        if (CurrencyType::$debug) {
+//            CurrencyType::$debugInfo[] = __METHOD__;
+//            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defined) ? 'defined' : 'not defined';
+//            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? 'lazy' : 'not lazy';
+//            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? get_debug_type($this->lazy['choice_loader']) : '';
+//            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defaults) ? 'default' : 'no default';
+//            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->resolved) ? 'resolved' : 'not resolved';
+//            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->nested) ? 'nested' : 'not nested';
+//            CurrencyType::$debugInfo[] = get_debug_type($this->defaults['choice_loader']);
+//        }
+
         return $clone->resolved;
     }
 
@@ -925,6 +960,18 @@ class OptionsResolver implements Options
     {
         if (!$this->locked) {
             throw new AccessException('Array access is only supported within closures of lazy options and normalizers.');
+        }
+
+        if (CurrencyType::$debug && 'choice_loader' === $option) {
+            CurrencyType::$debugInfo[] = __METHOD__;
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defined) ? 'defined' : 'not defined';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? 'lazy' : 'not lazy';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? get_debug_type($this->lazy['choice_loader']) : '';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defaults) ? 'default' : 'no default';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->resolved) ? 'resolved' : 'not resolved';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->nested) ? 'nested' : 'not nested';
+            CurrencyType::$debugInfo[] = get_debug_type($this->defaults['choice_loader']);
+            dump($this->defaults['choice_loader']);
         }
 
         // Shortcut for resolved options
@@ -1135,6 +1182,17 @@ class OptionsResolver implements Options
 
         // Mark as resolved
         $this->resolved[$option] = $value;
+
+        if (CurrencyType::$debug && 'choice_loader' === $option) {
+            CurrencyType::$debugInfo[] = __METHOD__;
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defined) ? 'defined' : 'not defined';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? 'lazy' : 'not lazy';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->lazy) ? get_debug_type($this->lazy['choice_loader']) : '';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->defaults) ? 'default' : 'no default';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->resolved) ? 'resolved' : 'not resolved';
+            CurrencyType::$debugInfo[] = array_key_exists('choice_loader', $this->nested) ? 'nested' : 'not nested';
+            CurrencyType::$debugInfo[] = get_debug_type($this->defaults['choice_loader']);
+        }
 
         return $value;
     }

@@ -13,6 +13,7 @@ namespace Symfony\Component\Form;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
+use Symfony\Component\Form\Extension\Core\Type\CurrencyType;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -132,9 +133,15 @@ class ResolvedFormType implements ResolvedFormTypeInterface
                 $this->optionsResolver = new OptionsResolver();
             }
 
+            if (CurrencyType::$debug && $this->innerType instanceof CurrencyType) {
+                CurrencyType::$debugInfo[] = 'configure type options';
+            }
             $this->innerType->configureOptions($this->optionsResolver);
 
             foreach ($this->typeExtensions as $extension) {
+                if (CurrencyType::$debug && $this->innerType instanceof CurrencyType) {
+                    CurrencyType::$debugInfo[] = 'configure extension options';
+                }
                 $extension->configureOptions($this->optionsResolver);
             }
         }

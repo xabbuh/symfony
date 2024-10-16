@@ -22,8 +22,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CurrencyType extends AbstractType
 {
+    public static $debug = false;
+    public static $debugInfo = [];
+
     public function configureOptions(OptionsResolver $resolver): void
     {
+        if (self::$debug) {
+            self::$debugInfo[] = __METHOD__;
+        }
         $resolver->setDefaults([
             'choice_loader' => function (Options $options) {
                 if (!class_exists(Intl::class)) {
