@@ -37,6 +37,13 @@ class MongoDbStoreTest extends AbstractStoreTestCase
 
     public static function setUpBeforeClass(): void
     {
+        var_dump(extension_loaded('mongodb'));
+        var_dump(class_exists(Manager::class));
+
+        if (extension_loaded('mongodb')) {
+            var_dump(phpversion('mongodb'));
+        }
+
         $manager = self::getMongoManager();
         try {
             $server = $manager->selectServer();
