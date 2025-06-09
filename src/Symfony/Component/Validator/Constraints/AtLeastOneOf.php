@@ -41,22 +41,33 @@ class AtLeastOneOf extends Composite
      */
     public function __construct(mixed $constraints = null, ?array $groups = null, mixed $payload = null, ?string $message = null, ?string $messageCollection = null, ?bool $includeInternalMessages = null)
     {
+        $options = null;
+
         if (\is_array($constraints) && !array_is_list($constraints)) {
             trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
+            $options = $constraints;
+        } else {
+            $this->constraints = $constraints;
         }
 
-        parent::__construct($constraints ?? [], $groups, $payload);
+        parent::__construct($options, $groups, $payload);
 
         $this->message = $message ?? $this->message;
         $this->messageCollection = $messageCollection ?? $this->messageCollection;
         $this->includeInternalMessages = $includeInternalMessages ?? $this->includeInternalMessages;
     }
 
+    /**
+     * @deprecated since Symfony 7.4
+     */
     public function getDefaultOption(): ?string
     {
         return 'constraints';
     }
 
+    /**
+     * @deprecated since Symfony 7.4
+     */
     public function getRequiredOptions(): array
     {
         return ['constraints'];
@@ -65,5 +76,24 @@ class AtLeastOneOf extends Composite
     protected function getCompositeOption(): string
     {
         return 'constraints';
+    }
+
+    private static function isConstraintsOption(mixed $value): bool
+    {
+        if (!\is_array($value)) {
+            return true;
+        }
+
+        if (!array_is_list($value)) {
+            return false;
+        }
+
+        foreach ($value as $constraint) {
+            if (!$constraint instanceof Constraint) {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

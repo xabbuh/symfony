@@ -70,14 +70,13 @@ class Isbn extends Constraint
             trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
 
             $options = array_merge($type, $options ?? []);
+            $type = $options['type'] ?? null;
         } elseif (null !== $type) {
             if (\is_array($options)) {
                 trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-            } else {
-                $options = [];
-            }
 
-            $options['value'] = $type;
+                $options['value'] = $type;
+            }
         }
 
         parent::__construct($options, $groups, $payload);
@@ -86,8 +85,12 @@ class Isbn extends Constraint
         $this->isbn10Message = $isbn10Message ?? $this->isbn10Message;
         $this->isbn13Message = $isbn13Message ?? $this->isbn13Message;
         $this->bothIsbnMessage = $bothIsbnMessage ?? $this->bothIsbnMessage;
+        $this->type = $type ?? $this->type;
     }
 
+    /**
+     * @deprecated since Symfony 7.4
+     */
     public function getDefaultOption(): ?string
     {
         return 'type';

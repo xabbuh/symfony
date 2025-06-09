@@ -51,6 +51,10 @@ abstract class Composite extends Constraint
      */
     public function __construct(mixed $options = null, ?array $groups = null, mixed $payload = null)
     {
+        if (null !== $options) {
+            trigger_deprecation('symfony/validator', '7.4', 'Passing an array of options to configure the "%s" in constraint "%s" is deprecated, use named arguments instead.', self::class, static::class);
+        }
+
         parent::__construct($options, $groups, $payload);
 
         $this->initializeNestedConstraints();

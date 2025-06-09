@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+7.4
+---
+
+* Deprecate evaluating options in the base `Constraint`. Initialize properties in the constructor of the concrete constraint
+  class instead and add the `#[InitializesOptions]` attribute to opt-out of the deprecated behaviour.
+* Deprecate the `normalizeOptions()`, `getDefaultOption()`, and `getRequiredOptions()` method of the base `Constraint` class.
+  Overriding them in child constraint will not have any effects starting with Symfony 8.0.
+
 7.3
 ---
 

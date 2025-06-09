@@ -33,23 +33,26 @@ class Cascade extends Constraint
     public function __construct(array|string|null $exclude = null, ?array $options = null)
     {
         if (\is_array($exclude) && !array_is_list($exclude)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
 
             $options = array_merge($exclude, $options ?? []);
             $options['exclude'] = array_flip((array) ($options['exclude'] ?? []));
+            $exclude = $options['exclude'] ?? null;
         } else {
             if (\is_array($options)) {
                 trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
             }
 
-            $this->exclude = array_flip((array) $exclude);
+            $exclude = array_flip((array) $exclude);
+            $this->exclude = $exclude;
         }
 
         if (\is_array($options) && \array_key_exists('groups', $options)) {
             throw new ConstraintDefinitionException(\sprintf('The option "groups" is not supported by the constraint "%s".', __CLASS__));
         }
 
-        parent::__construct($options);
+        parent::__construct($options, null, $options['payload'] ?? null);
+
+        $this->exclude = $exclude ?? $this->exclude;
     }
 
     public function getTargets(): string|array
