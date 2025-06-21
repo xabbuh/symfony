@@ -52,11 +52,7 @@ class Locale extends Constraint
             throw new LogicException('The Intl component is required to use the Locale constraint. Try running "composer require symfony/intl".');
         }
 
-        if (\is_array($options)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->message = $message ?? $this->message;
         $this->canonicalize = $canonicalize ?? $this->canonicalize;

@@ -23,17 +23,6 @@ use Symfony\Component\Validator\Mapping\Loader\AttributeLoader;
  */
 class EnableAutoMappingTest extends TestCase
 {
-    /**
-     * @group legacy
-     */
-    public function testGroups()
-    {
-        $this->expectException(ConstraintDefinitionException::class);
-        $this->expectExceptionMessage(\sprintf('The option "groups" is not supported by the constraint "%s".', EnableAutoMapping::class));
-
-        new EnableAutoMapping(['groups' => 'foo']);
-    }
-
     public function testDisableAutoMappingAttribute()
     {
         $metadata = new ClassMetadata(EnableAutoMappingDummy::class);

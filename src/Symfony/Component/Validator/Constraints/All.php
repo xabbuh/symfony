@@ -30,33 +30,11 @@ class All extends Composite
      * @param string[]|null                                         $groups
      */
     #[HasNamedArguments]
-    public function __construct(mixed $constraints = null, ?array $groups = null, mixed $payload = null)
+    public function __construct(array|Constraint $constraints = [], ?array $groups = null, mixed $payload = null)
     {
-        if (!$constraints instanceof Constraint && !\is_array($constraints) || \is_array($constraints) && !array_is_list($constraints)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
+        $this->constraints = $constraints;
 
-            parent::__construct($constraints, $groups, $payload);
-        } else {
-            $this->constraints = $constraints;
-
-            parent::__construct(null, $groups, $payload);
-        }
-    }
-
-    /**
-     * @deprecated since Symfony 7.4
-     */
-    public function getDefaultOption(): ?string
-    {
-        return 'constraints';
-    }
-
-    /**
-     * @deprecated since Symfony 7.4
-     */
-    public function getRequiredOptions(): array
-    {
-        return ['constraints'];
+        parent::__construct(null, $groups, $payload);
     }
 
     protected function getCompositeOption(): string

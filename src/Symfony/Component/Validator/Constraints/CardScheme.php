@@ -53,21 +53,9 @@ class CardScheme extends Constraint
      * @param array<string,mixed>|null                                     $options
      */
     #[HasNamedArguments]
-    public function __construct(array|string|null $schemes, ?string $message = null, ?array $groups = null, mixed $payload = null, ?array $options = null)
+    public function __construct(array|string|null $schemes, ?string $message = null, ?array $groups = null, mixed $payload = null)
     {
-        if (\is_array($schemes) && \is_string(key($schemes))) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-            $options = array_merge($schemes, $options ?? []);
-        } else {
-            if (\is_array($options)) {
-                trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-                $options['value'] = $schemes;
-            }
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->schemes = $schemes ?? $this->schemes;
         $this->message = $message ?? $this->message;

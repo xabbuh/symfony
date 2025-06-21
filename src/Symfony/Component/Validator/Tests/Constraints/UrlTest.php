@@ -29,26 +29,6 @@ class UrlTest extends TestCase
         $this->assertEquals('trim', $url->normalizer);
     }
 
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("string" given).');
-        new Url(['normalizer' => 'Unknown Callable', 'requireTld' => true]);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerObjectThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("stdClass" given).');
-        new Url(['normalizer' => new \stdClass(), 'requireTld' => true]);
-    }
-
     public function testAttributes()
     {
         $metadata = new ClassMetadata(UrlDummy::class);
@@ -78,16 +58,6 @@ class UrlTest extends TestCase
         self::assertFalse($dConstraint->relativeProtocol);
         self::assertNull($dConstraint->normalizer);
         self::assertTrue($dConstraint->requireTld);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testRequireTldDefaultsToFalse()
-    {
-        $constraint = new Url();
-
-        $this->assertFalse($constraint->requireTld);
     }
 }
 

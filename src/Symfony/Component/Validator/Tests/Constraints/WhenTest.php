@@ -26,17 +26,6 @@ use Symfony\Component\Validator\Tests\Constraints\Fixtures\WhenTestWithClosure;
 
 final class WhenTest extends TestCase
 {
-    /**
-     * @group legacy
-     */
-    public function testMissingOptionsExceptionIsThrown()
-    {
-        $this->expectException(MissingOptionsException::class);
-        $this->expectExceptionMessage('The options "expression", "constraints" must be set for constraint "Symfony\Component\Validator\Constraints\When".');
-
-        new When([]);
-    }
-
     public function testNonConstraintsAreRejected()
     {
         $this->expectException(ConstraintDefinitionException::class);

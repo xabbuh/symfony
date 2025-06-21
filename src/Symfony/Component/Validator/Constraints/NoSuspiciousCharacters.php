@@ -107,11 +107,7 @@ class NoSuspiciousCharacters extends Constraint
             throw new LogicException('The intl extension is required to use the NoSuspiciousCharacters constraint.');
         }
 
-        if (\is_array($options)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->restrictionLevelMessage = $restrictionLevelMessage ?? $this->restrictionLevelMessage;
         $this->invisibleMessage = $invisibleMessage ?? $this->invisibleMessage;

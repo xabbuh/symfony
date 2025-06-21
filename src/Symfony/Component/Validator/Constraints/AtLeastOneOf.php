@@ -41,36 +41,15 @@ class AtLeastOneOf extends Composite
      * @param bool|null                                  $includeInternalMessages Whether to include inner constraint messages (defaults to true)
      */
     #[HasNamedArguments]
-    public function __construct(mixed $constraints = null, ?array $groups = null, mixed $payload = null, ?string $message = null, ?string $messageCollection = null, ?bool $includeInternalMessages = null)
+    public function __construct(array|Constraint $constraints = [], ?array $groups = null, mixed $payload = null, ?string $message = null, ?string $messageCollection = null, ?bool $includeInternalMessages = null)
     {
-        if (!$constraints instanceof Constraint && !\is_array($constraints) || \is_array($constraints) && !array_is_list($constraints)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-            $options = $constraints;
-        } else {
-            $this->constraints = $constraints;
-        }
+        $this->constraints = $constraints;
 
-        parent::__construct($options ?? null, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->message = $message ?? $this->message;
         $this->messageCollection = $messageCollection ?? $this->messageCollection;
         $this->includeInternalMessages = $includeInternalMessages ?? $this->includeInternalMessages;
-    }
-
-    /**
-     * @deprecated since Symfony 7.4
-     */
-    public function getDefaultOption(): ?string
-    {
-        return 'constraints';
-    }
-
-    /**
-     * @deprecated since Symfony 7.4
-     */
-    public function getRequiredOptions(): array
-    {
-        return ['constraints'];
     }
 
     protected function getCompositeOption(): string

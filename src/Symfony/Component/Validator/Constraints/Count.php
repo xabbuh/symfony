@@ -63,27 +63,12 @@ class Count extends Constraint
         ?string $divisibleByMessage = null,
         ?array $groups = null,
         mixed $payload = null,
-        ?array $options = null,
     ) {
-        if (\is_array($exactly)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-            $options = array_merge($exactly, $options ?? []);
-            $exactly = $options['value'] ?? null;
-        } elseif (\is_array($options)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-        }
-
-        $min ??= $options['min'] ?? null;
-        $max ??= $options['max'] ?? null;
-
-        unset($options['value'], $options['min'], $options['max']);
-
         if (null !== $exactly && null === $min && null === $max) {
             $min = $max = $exactly;
         }
 
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->min = $min;
         $this->max = $max;

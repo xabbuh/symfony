@@ -19,16 +19,6 @@ use Symfony\Component\Validator\Tests\Fixtures\ConstraintChoiceWithPreset;
 
 class ChoiceTest extends TestCase
 {
-    /**
-     * @group legacy
-     */
-    public function testSetDefaultPropertyChoice()
-    {
-        $constraint = new ConstraintChoiceWithPreset('A');
-
-        self::assertEquals(['A', 'B', 'C'], $constraint->choices);
-    }
-
     public function testAttributes()
     {
         $metadata = new ClassMetadata(ChoiceDummy::class);

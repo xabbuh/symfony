@@ -27,7 +27,6 @@ use Symfony\Component\Validator\Tests\Fixtures\Attribute\GroupProviderDto;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintA;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintB;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintWithRequiredArgument;
-use Symfony\Component\Validator\Tests\Fixtures\DummyEntityConstraintWithoutNamedArguments;
 use Symfony\Component\Validator\Tests\Fixtures\Entity_81;
 use Symfony\Component\Validator\Tests\Fixtures\NestedAttribute\Entity;
 use Symfony\Component\Validator\Tests\Fixtures\NestedAttribute\GroupSequenceProviderEntity;
@@ -190,18 +189,5 @@ class YamlFileLoaderTest extends TestCase
         $expected->setGroupSequenceProvider(true);
 
         $this->assertEquals($expected, $metadata);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testLoadConstraintWithoutNamedArgumentsSupport()
-    {
-        $loader = new YamlFileLoader(__DIR__.'/constraint-without-named-arguments-support.yml');
-        $metadata = new ClassMetadata(DummyEntityConstraintWithoutNamedArguments::class);
-
-        $this->expectUserDeprecationMessage('Since symfony/validator 7.3: Using constraints not supporting named arguments is deprecated. Try adding the HasNamedArguments attribute to Symfony\Component\Validator\Tests\Mapping\Loader\Fixtures\ConstraintWithoutNamedArguments.');
-
-        $loader->loadClassMetadata($metadata);
     }
 }

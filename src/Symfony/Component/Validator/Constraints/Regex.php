@@ -52,20 +52,8 @@ class Regex extends Constraint
         ?callable $normalizer = null,
         ?array $groups = null,
         mixed $payload = null,
-        ?array $options = null,
     ) {
-        if (\is_array($pattern)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-            $options = array_merge($pattern, $options ?? []);
-            $pattern = $options['pattern'] ?? null;
-        } elseif (null !== $pattern) {
-            if (\is_array($options)) {
-                trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-            }
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->pattern = $pattern ?? $this->pattern;
         $this->message = $message ?? $this->message;

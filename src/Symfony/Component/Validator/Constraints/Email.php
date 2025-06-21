@@ -60,19 +60,11 @@ class Email extends Constraint
         ?array $groups = null,
         mixed $payload = null,
     ) {
-        if (\is_array($options) && \array_key_exists('mode', $options) && !\in_array($options['mode'], self::VALIDATION_MODES, true)) {
-            throw new InvalidArgumentException('The "mode" parameter value is not valid.');
-        }
-
         if (null !== $mode && !\in_array($mode, self::VALIDATION_MODES, true)) {
             throw new InvalidArgumentException('The "mode" parameter value is not valid.');
         }
 
-        if (\is_array($options)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->message = $message ?? $this->message;
         $this->mode = $mode ?? $this->mode;

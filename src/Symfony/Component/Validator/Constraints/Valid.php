@@ -32,11 +32,7 @@ class Valid extends Constraint
     #[HasNamedArguments]
     public function __construct(?array $options = null, ?array $groups = null, $payload = null, ?bool $traverse = null)
     {
-        if (\is_array($options)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->traverse = $traverse ?? $this->traverse;
     }

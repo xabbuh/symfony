@@ -39,46 +39,19 @@ class When extends Composite
      * @param Constraint[]|Constraint               $otherwise   One or multiple constraints that are applied if the expression returns false
      */
     #[HasNamedArguments]
-    public function __construct(string|Expression|array|\Closure $expression, array|Constraint|null $constraints = null, ?array $values = null, ?array $groups = null, $payload = null, ?array $options = null, array|Constraint $otherwise = [])
+    public function __construct(string|Expression|\Closure $expression, array|Constraint|null $constraints = null, ?array $values = null, ?array $groups = null, $payload = null, ?array $options = null, array|Constraint $otherwise = [])
     {
         if (!class_exists(ExpressionLanguage::class)) {
             throw new LogicException(\sprintf('The "symfony/expression-language" component is required to use the "%s" constraint. Try running "composer require symfony/expression-language".', __CLASS__));
         }
 
-        if (\is_array($expression)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
+        $this->expression = $expression;
+        $this->constraints = $constraints;
+        $this->otherwise = $otherwise;
 
-            $options = array_merge($expression, $options ?? []);
-        } else {
-            if (\is_array($options)) {
-                trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-                $options['expression'] = $expression;
-                $options['constraints'] = $constraints;
-                $options['otherwise'] = $otherwise;
-            } else {
-                $this->expression = $expression;
-                $this->constraints = $constraints;
-                $this->otherwise = $otherwise;
-            }
-        }
-
-        if (!\is_array($options['constraints'] ?? [])) {
-            $options['constraints'] = [$options['constraints']];
-        }
-
-        if (!\is_array($options['otherwise'] ?? [])) {
-            $options['otherwise'] = [$options['otherwise']];
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->values = $values ?? $this->values;
-    }
-
-    public function getRequiredOptions(): array
-    {
-        return ['expression', 'constraints'];
     }
 
     public function getTargets(): string|array

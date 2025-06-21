@@ -36,26 +36,6 @@ class UniqueTest extends TestCase
         [$dConstraint] = $metadata->properties['d']->getConstraints();
         self::assertSame('intval', $dConstraint->normalizer);
     }
-
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("string" given).');
-        new Unique(['normalizer' => 'Unknown Callable']);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerObjectThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("stdClass" given).');
-        new Unique(['normalizer' => new \stdClass()]);
-    }
 }
 
 class UniqueDummy

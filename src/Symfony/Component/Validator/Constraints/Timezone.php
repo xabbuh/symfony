@@ -58,21 +58,8 @@ class Timezone extends Constraint
         ?bool $intlCompatible = null,
         ?array $groups = null,
         mixed $payload = null,
-        ?array $options = null,
     ) {
-        if (\is_array($zone)) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-            $options = array_merge($zone, $options ?? []);
-        } elseif (null !== $zone) {
-            if (\is_array($options)) {
-                trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-                $options['value'] = $zone;
-            }
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->zone = $zone ?? $this->zone;
         $this->message = $message ?? $this->message;

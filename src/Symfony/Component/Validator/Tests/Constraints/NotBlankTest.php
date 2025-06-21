@@ -44,26 +44,6 @@ class NotBlankTest extends TestCase
         self::assertSame('trim', $bConstraint->normalizer);
         self::assertSame('myMessage', $bConstraint->message);
     }
-
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("string" given).');
-        new NotBlank(['normalizer' => 'Unknown Callable']);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerObjectThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("stdClass" given).');
-        new NotBlank(['normalizer' => new \stdClass()]);
-    }
 }
 
 class NotBlankDummy

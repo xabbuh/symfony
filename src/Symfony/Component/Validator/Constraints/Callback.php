@@ -32,26 +32,9 @@ class Callback extends Constraint
      * @param string[]|null                                     $groups
      */
     #[HasNamedArguments]
-    public function __construct(array|string|callable|null $callback = null, ?array $groups = null, mixed $payload = null, ?array $options = null)
+    public function __construct(array|string|callable|null $callback = null, ?array $groups = null, mixed $payload = null)
     {
-        // Invocation through attributes with an array parameter only
-        if (\is_array($callback) && 1 === \count($callback) && isset($callback['value'])) {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-            $callback = $callback['value'];
-        }
-
-        if (!\is_array($callback) || (!isset($callback['callback']) && !isset($callback['groups']) && !isset($callback['payload']))) {
-            if (\is_array($options)) {
-                trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-            }
-        } else {
-            trigger_deprecation('symfony/validator', '7.3', 'Passing an array of options to configure the "%s" constraint is deprecated, use named arguments instead.', static::class);
-
-            $options = array_merge($callback, $options ?? []);
-        }
-
-        parent::__construct($options, $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->callback = $callback ?? $this->callback;
     }

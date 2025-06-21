@@ -29,26 +29,6 @@ class IpTest extends TestCase
         $this->assertEquals('trim', $ip->normalizer);
     }
 
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("string" given).');
-        new Ip(['normalizer' => 'Unknown Callable']);
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testInvalidNormalizerObjectThrowsException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "normalizer" option must be a valid callable ("stdClass" given).');
-        new Ip(['normalizer' => new \stdClass()]);
-    }
-
     public function testAttributes()
     {
         $metadata = new ClassMetadata(IpDummy::class);
