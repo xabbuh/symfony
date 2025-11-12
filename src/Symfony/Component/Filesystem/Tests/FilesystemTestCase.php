@@ -151,9 +151,6 @@ class FilesystemTestCase extends TestCase
 
     protected function markAsSkippedIfChmodIsMissing()
     {
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('chmod is not supported on Windows');
-        }
     }
 
     protected function markAsSkippedIfPosixIsMissing()

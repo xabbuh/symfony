@@ -47,10 +47,6 @@ class FilesystemTest extends FilesystemTestCase
     public function testCopyUnreadableFileFails()
     {
         $this->expectException(IOException::class);
-        // skip test on Windows; PHP can't easily set file as unreadable on Windows
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('This test cannot run on Windows.');
-        }
 
         if (!getenv('USER') || 'root' === getenv('USER')) {
             $this->markTestSkipped('This test will fail if run under superuser');
@@ -123,10 +119,6 @@ class FilesystemTest extends FilesystemTestCase
     public function testCopyWithOverrideWithReadOnlyTargetFails()
     {
         $this->expectException(IOException::class);
-        // skip test on Windows; PHP can't easily set file as unwritable on Windows
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('This test cannot run on Windows.');
-        }
 
         if (!getenv('USER') || 'root' === getenv('USER')) {
             $this->markTestSkipped('This test will fail if run under superuser');

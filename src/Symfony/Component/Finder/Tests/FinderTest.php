@@ -1585,10 +1585,6 @@ class FinderTest extends Iterator\RealIteratorTestCase
 
     public function testAccessDeniedException()
     {
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('chmod is not supported on Windows');
-        }
-
         $finder = $this->buildFinder();
         $finder->files()->in(self::$tmpDir);
 
@@ -1621,10 +1617,6 @@ class FinderTest extends Iterator\RealIteratorTestCase
 
     public function testIgnoredAccessDeniedException()
     {
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('chmod is not supported on Windows');
-        }
-
         $finder = $this->buildFinder();
         $finder->files()->ignoreUnreadableDirs()->in(self::$tmpDir);
 

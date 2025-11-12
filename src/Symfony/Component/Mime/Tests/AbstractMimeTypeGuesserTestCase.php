@@ -104,10 +104,6 @@ abstract class AbstractMimeTypeGuesserTestCase extends TestCase
             $this->markTestSkipped('Guesser is not supported');
         }
 
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('Cannot verify chmod operations on Windows');
-        }
-
         if (!getenv('USER') || 'root' === getenv('USER')) {
             $this->markTestSkipped('This test will fail if run under superuser');
         }

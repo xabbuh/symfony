@@ -56,11 +56,6 @@ class AboutCommandTest extends TestCase
         $kernel = new TestAppKernel('test', true);
         $this->fs->mkdir($kernel->getProjectDir());
 
-        // skip test on Windows; PHP can't easily set file as unreadable on Windows
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('This test cannot run on Windows.');
-        }
-
         $this->fs->dumpFile($kernel->getCacheDir().'/unreadable_file', 'The file content.');
         $this->fs->chmod($kernel->getCacheDir().'/unreadable_file', 0222);
 

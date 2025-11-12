@@ -2718,9 +2718,6 @@ YAML;
     {
         $this->expectException(ParseException::class);
         $this->expectExceptionMessageMatches('#^File ".+/Fixtures/not_readable.yml" cannot be read\.$#');
-        if ('\\' === \DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('chmod is not supported on Windows');
-        }
 
         if (!getenv('USER') || 'root' === getenv('USER')) {
             $this->markTestSkipped('This test will fail if run under superuser');
